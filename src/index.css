@@ -1,0 +1,184 @@
+@import url('https://api.fontshare.com/v2/css?f[]=chillax@200,300,400,500,600,700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-brand: #5af05a;
+  --color-primary: #5af05a;
+  --color-black: #1b1b1b;
+  --color-dark-black: #191a22;
+  --color-light-black: #2a2a2a;
+  --color-heading: #f8f1ea;
+  --color-text: #d9d9d9;
+  --color-white: #ffffff;
+  --color-border: #5af05a;
+  --font-chillax: 'Chillax', sans-serif;
+}
+
+/* 1. TYPOGRAPHY SYSTEM */
+html, body, #root, p, span, div, button, input, textarea, a, li, label, section, article, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Chillax', sans-serif !important;
+}
+
+/* Headings color: Off-White/Cream (#f8f1ea) */
+h1, h2, h3, h4, h5, h6, .font-heading {
+  color: var(--color-heading) !important;
+}
+
+/* 2. BACKGROUND COLORS */
+/* Pure Black replaced with Primary Background (#1b1b1b) */
+html, body, #root, .bg-black, .bg-neutral-950, .bg-neutral-900 {
+  background-color: var(--color-black) !important;
+}
+
+/* Canvas & sticky frame background stays solid #1b1b1b so video frames blend seamlessly */
+canvas,
+.sticky,
+.h-\[300vh\] {
+  background-color: var(--color-black) !important;
+}
+
+/* Header, Footer, and Specially Darkened Wrappers: Deep Dark Background (#191a22) */
+header,
+footer,
+article,
+.bg-\[\#0e0c2b\],
+.bg-\[\#121034\],
+.bg-\[\#0a091d\],
+[class*="from-[#121034]"],
+[class*="bg-\[\#0e0c2b\]"] {
+  background-color: var(--color-dark-black) !important;
+}
+
+/* Page section gradients using #1b1b1b to #191a22 */
+main,
+.min-h-screen.w-full.bg-gradient-to-b,
+section.relative.w-full {
+  background: linear-gradient(to bottom, var(--color-black) 0%, var(--color-dark-black) 100%) !important;
+}
+
+/* Translucent cards / blur panels overlay Deep Dark Background */
+.backdrop-blur-md,
+.bg-black\/40,
+.bg-\[\#0e0c2b\]\/80,
+.bg-\[\#0e0c2b\]\/60 {
+  background-color: rgba(25, 26, 34, 0.88) !important;
+}
+
+/* 3. TEXT COLORS */
+p,
+span.text-neutral-300,
+span.text-neutral-400,
+span.text-neutral-500,
+span.text-neutral-600,
+.text-neutral-300,
+.text-neutral-400,
+.text-neutral-500,
+.text-slate-400 {
+  color: var(--color-text) !important;
+}
+
+/* 4. NAVIGATION LINKS */
+nav a,
+header a {
+  color: var(--color-text) !important;
+}
+
+nav a.text-white,
+nav a.font-semibold,
+header a.text-white,
+nav a[aria-current="page"],
+nav a:hover,
+header a:hover {
+  color: var(--color-brand) !important;
+}
+
+/* Navigation active indicator */
+nav .bg-cyan-500,
+nav .border-cyan-500,
+.nav-active-indicator {
+  background-color: var(--color-brand) !important;
+  border-color: var(--color-brand) !important;
+}
+
+/* 5. ACCENT / BRAND COLOR (#5af05a) */
+.text-cyan-400,
+.text-cyan-500,
+.text-cyan-300,
+.bg-clip-text,
+.gradient-text,
+[class*="from-cyan"] {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: var(--color-brand) !important;
+  color: var(--color-brand) !important;
+}
+
+/* Icons */
+svg.text-cyan-400,
+svg.text-cyan-500,
+svg.text-white {
+  color: var(--color-brand) !important;
+  -webkit-text-fill-color: initial !important;
+}
+
+/* Progress bars and accent fills */
+.bg-gradient-to-r.from-cyan-500,
+.bg-cyan-500 {
+  background: var(--color-brand) !important;
+}
+
+/* Spinner border accent */
+.border-t-cyan-500,
+.border-r-cyan-400,
+.border-b-cyan-600\/50,
+.border-l-cyan-500\/50 {
+  border-color: var(--color-brand) !important;
+}
+
+/* 6. BUTTONS */
+/* Primary Action Buttons: Neon Green (#5af05a) background with dark text */
+button.bg-white,
+button[type="submit"],
+a.bg-white,
+button.bg-neutral-950 {
+  background-color: var(--color-brand) !important;
+  color: #1b1b1b !important;
+  font-weight: 600 !important;
+  -webkit-text-fill-color: #1b1b1b !important;
+  border-color: var(--color-brand) !important;
+}
+
+button.bg-white:hover,
+a.bg-white:hover {
+  opacity: 0.9 !important;
+}
+
+/* Outlined buttons */
+button.border,
+a.border {
+  border-color: var(--color-brand) !important;
+  color: var(--color-brand) !important;
+}
+
+/* 7. INPUT FIELDS */
+input, textarea {
+  background-color: var(--color-dark-black) !important;
+  color: var(--color-heading) !important;
+  border-color: rgba(90, 240, 90, 0.3) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #888888 !important;
+}
+
+/* 8. BORDERS & DIVIDERS */
+*, ::before, ::after {
+  border-color: rgba(248, 241, 234, 0.12);
+}
+
+.border-neutral-800,
+.border-neutral-900,
+.border-neutral-950 {
+  border-color: rgba(90, 240, 90, 0.2) !important;
+}

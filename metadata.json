@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Nexus_app",
+  "description": "Imported from GitHub: sahibpreets210-creates/Nexus_app",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
