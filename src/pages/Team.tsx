@@ -1,232 +1,155 @@
-import React, { useState, useRef } from 'react';
-import { motion } from 'motion/react';
+import { useState } from 'react';
+import Reveal from '../components/Reveal';
 
 interface TeamMember {
   name: string;
   role: string;
-  bio: string;
   avatarLetter: string;
-  skills: string[];
+  imageUrl?: string;
+  imagePosition?: string;
 }
 
-function TeamCard({ member, idx }: { member: TeamMember; idx: number }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [transformStyle, setTransformStyle] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
-  const [isHovered, setIsHovered] = useState(false);
-  const rafId = useRef<number | null>(null);
+const MEMBERS: TeamMember[] = [
+  {
+    name: 'Vinayak Shukla',
+    role: 'President',
+    avatarLetter: 'V',
+  },
+  {
+    name: 'Anoushka Arya',
+    role: 'Co-President',
+    avatarLetter: 'A',
+    imageUrl: '/team/anoushka.jpeg',
+  },
+  {
+    name: 'Shatakshi Agarwal',
+    role: 'Co-President',
+    avatarLetter: 'S',
+    imageUrl: '/team/shatakshi.jpeg',
+  },
+  {
+    name: 'Aditi Thakur',
+    role: 'Secretary',
+    avatarLetter: 'A',
+    imageUrl: '/team/aditi.jpeg',
+  },
+  {
+    name: 'Sahibpreet Singh',
+    role: 'Core Member',
+    avatarLetter: 'S',
+    imageUrl: '/team/sahibpreet-singh.jpeg',
+  },
+  {
+    name: 'Aarav Lal',
+    role: 'Core Member',
+    avatarLetter: 'A',
+    imageUrl: '/team/arav.jpeg',
+  },
+  {
+    name: 'Anav Halder',
+    role: 'Core Member',
+    avatarLetter: 'A',
+    imageUrl: '/team/anav.jpeg',
+  },
+];
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = -((y - centerY) / centerY) * 10; // max 10 deg
-    const rotateY = ((x - centerX) / centerX) * 10;  // max 10 deg
-
-    if (rafId.current) cancelAnimationFrame(rafId.current);
-    rafId.current = requestAnimationFrame(() => {
-      setTransformStyle(`perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.025, 1.025, 1.025)`);
-    });
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (rafId.current) cancelAnimationFrame(rafId.current);
-    setTransformStyle('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
-  };
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const touch = e.touches[0];
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = -((y - centerY) / centerY) * 8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    setIsHovered(true);
-    setTransformStyle(`perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`);
-  };
-
-  const handleTouchEnd = () => {
-    setIsHovered(false);
-    setTransformStyle('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
-  };
+function TeamCard({ member, index }: { member: TeamMember; index: number }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showPhoto = Boolean(member.imageUrl) && !imageFailed;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 25 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: idx * 0.1, duration: 0.5 }}
-      className="h-full"
-    >
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          transform: transformStyle,
-          transition: isHovered
-            ? 'transform 0.1s ease-out, box-shadow 0.2s ease, border-color 0.2s ease'
-            : 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease',
-          boxShadow: isHovered
-            ? '0 12px 35px -8px rgba(90, 240, 90, 0.18), 0 0 15px 0 rgba(90, 240, 90, 0.1)'
-            : '0 4px 20px -5px rgba(0, 0, 0, 0.5)',
-          willChange: 'transform',
-        }}
-        className="p-8 rounded-2xl bg-[#191a22] border border-[#5af05a]/20 hover:border-[#5af05a] transition-all duration-300 flex flex-col items-center text-center group cursor-pointer relative overflow-hidden h-full"
-      >
-        {/* Subtle background gradient shift base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#232259]/30 via-transparent to-transparent opacity-60 pointer-events-none rounded-2xl" />
+    <Reveal delay={Math.min(index * 0.06, 0.36)} className="h-full">
+      <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#15171b]/85 transition-colors duration-300 hover:border-[#5af05a]/45 focus-within:border-[#5af05a]/45">
+        {/* Portrait */}
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#101215]">
+          {showPhoto ? (
+            <img
+              src={member.imageUrl}
+              alt={`${member.name}, ${member.role} of Nexus`}
+              loading="lazy"
+              decoding="async"
+              width={640}
+              height={800}
+              onError={() => setImageFailed(true)}
+              className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            />
+          ) : (
+            <div
+              className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_50%_35%,rgba(90,240,90,0.14),transparent_60%)]"
+              role="img"
+              aria-label={`${member.name} — photograph not available`}
+            >
+              <span className="flex h-20 w-20 items-center justify-center rounded-full border border-[#5af05a]/40 bg-[#121316] text-2xl font-semibold text-[#5af05a]">
+                {member.avatarLetter}
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#7f817b]">
+                Nexus Core
+              </span>
+            </div>
+          )}
 
-        {/* Avatar Circle with initial */}
-        <div className="relative w-20 h-20 rounded-full bg-[#191a22] flex items-center justify-center border-2 border-[#5af05a] group-hover:shadow-[0_0_15px_rgba(90,240,90,0.4)] transition-all duration-300 mb-6 z-10">
-          <div className="text-xl font-bold tracking-wider text-[#5af05a]">
-            {member.avatarLetter}
-          </div>
-          {/* Subtle ring animation */}
-          <div className="absolute inset-0 rounded-full border border-[#5af05a]/0 group-hover:scale-110 group-hover:border-[#5af05a]/40 transition-all duration-500 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#15171b] via-[#15171b]/25 to-transparent" />
+          <span className="absolute left-4 top-4 rounded-full border border-[#5af05a]/25 bg-[#0d0f11]/70 px-3 py-1 text-[9px] uppercase tracking-[0.2em] text-[#8fe6a2] backdrop-blur">
+            Core Syndicate
+          </span>
         </div>
 
-        {/* Member Name */}
-        <h3 className="text-xl font-bold tracking-tight text-[#f8f1ea] group-hover:text-[#5af05a] transition-colors duration-300 z-10">
-          {member.name}
-        </h3>
-
-        {/* Role */}
-        <p className="text-[11px] tracking-[0.2em] text-[#5af05a] uppercase font-semibold mt-1 mb-4 z-10">
-          {member.role}
-        </p>
-
-        {/* Bio */}
-        {member.bio && (
-          <p className="text-xs text-[#b2b2b2] leading-relaxed mb-6 z-10">
-            {member.bio}
+        {/* Identity */}
+        <div className="relative -mt-10 flex flex-1 flex-col px-5 pb-6">
+          <h3 className="text-lg font-semibold tracking-tight text-[#f8f1ea]">
+            {member.name}
+          </h3>
+          <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-[#5af05a]">
+            {member.role}
           </p>
-        )}
-
-        {/* Skills Tag list */}
-        {member.skills && member.skills.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 justify-center mt-auto z-10">
-            {member.skills.map((skill) => (
-              <span
-                key={skill}
-                className="text-[9px] text-[#b2b2b2] bg-[#1b1b1b] px-2.5 py-1 rounded border border-[#5af05a]/20"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </motion.div>
+          <div className="mt-4 h-[1px] w-full bg-gradient-to-r from-[#5af05a]/30 via-white/10 to-transparent" />
+          <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-[#7f817b]">
+            Amity International School
+            <br />
+            Vasundhara Sector-1
+          </p>
+        </div>
+      </article>
+    </Reveal>
   );
 }
 
 export default function Team() {
-  const members: TeamMember[] = [
-    {
-      name: 'Vinayak Shukla',
-      role: 'President',
-      bio: '',
-      avatarLetter: 'V',
-      skills: [],
-    },
-    {
-      name: 'Anoushka Arya',
-      role: 'Co-President',
-      bio: '',
-      avatarLetter: 'A',
-      skills: [],
-    },
-    {
-      name: 'Shatakshi Agarwal',
-      role: 'Co-President',
-      bio: '',
-      avatarLetter: 'S',
-      skills: [],
-    },
-    {
-      name: 'Aditi Thakur',
-      role: 'Secretary',
-      bio: '',
-      avatarLetter: 'A',
-      skills: [],
-    },
-    {
-      name: 'Sahibpreet Singh',
-      role: 'Core Member',
-      bio: '',
-      avatarLetter: 'S',
-      skills: [],
-    },
-    {
-      name: 'Aarav Lal',
-      role: 'Core Member',
-      bio: '',
-      avatarLetter: 'A',
-      skills: [],
-    },
-    {
-      name: 'Anav Halder',
-      role: 'Core Member',
-      bio: '',
-      avatarLetter: 'A',
-      skills: [],
-    },
-  ];
-
   return (
-    <div className="min-h-screen w-full bg-[#1b1b1b] text-white pt-32 pb-24 px-6 relative overflow-hidden selection:bg-[#5af05a]/30 selection:text-white">
-      {/* Background ambient lighting */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#232259]/20 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-[#5af05a]/5 blur-[150px] rounded-full pointer-events-none" />
+    <div className="page-top w-full pb-24">
+      <div className="container-nexus">
+        <header className="mx-auto max-w-3xl text-center">
+          <p className="eyebrow justify-center">The Core Syndicate</p>
+          <h1 className="display mt-5 text-[clamp(2.2rem,6vw,3.75rem)]">Our Team</h1>
+          <div className="mx-auto mt-6 h-[2px] w-16 rounded-full bg-gradient-to-r from-[#5af05a] to-[#3bd7c4]" />
+          <p className="lead mx-auto mt-6 max-w-xl text-sm sm:text-base">
+            The analysts, builders and designers steering Nexus — the people behind the
+            club&apos;s technology and finance initiatives.
+          </p>
+        </header>
 
-      <div className="max-w-5xl mx-auto relative z-10">
-        
-        {/* Page Header */}
-        <div className="flex flex-col items-center text-center gap-4 mb-20">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-[11px] tracking-[0.3em] text-[#5af05a] uppercase font-semibold"
-          >
-            The Core Syndicate
-          </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-extrabold tracking-tight uppercase text-[#f8f1ea]"
-          >
-            Our Team
-          </motion.h1>
-          <div className="w-16 h-[2px] bg-[#5af05a] rounded-full mt-2" />
-        </div>
-
-        {/* Team Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {members.map((member, idx) => (
-            <TeamCard key={member.name} member={member} idx={idx} />
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {MEMBERS.map((member, index) => (
+            <TeamCard key={member.name} member={member} index={index} />
           ))}
         </div>
 
+        <Reveal>
+          <div className="panel mt-14 flex flex-col items-center gap-4 px-6 py-8 text-center sm:px-10">
+            <div className="panel-sheen" />
+            <h2 className="relative text-lg font-semibold uppercase tracking-[0.12em] text-[#f8f1ea]">
+              Want to build with the syndicate?
+            </h2>
+            <p className="relative max-w-lg text-sm leading-relaxed text-[#a4a6a0]">
+              Reach out to the core team for collaborations, mentorship or club
+              announcements.
+            </p>
+            <a href="mailto:nexusaisv1@gmail.com" className="btn btn-primary relative mt-2">
+              nexusaisv1@gmail.com
+            </a>
+          </div>
+        </Reveal>
       </div>
     </div>
   );
 }
-

@@ -1,14 +1,27 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
 import { FRAMES } from './frames';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FinancialNetwork from './components/FinancialNetwork';
 
 // Pages
 import Home from './pages/Home';
 import About from './pages/About';
 import Team from './pages/Team';
 import Contact from './pages/Contact';
+import Arcade from './pages/Arcade';
+
+const ROUTE_TITLES: Record<string, string> = {
+  '/': 'Nexus — Technology & Finance Club',
+  '/about': 'About — Nexus',
+  '/team': 'Team — Nexus',
+  '/arcade': 'Nexus Arcade — Market Dash',
+  '/contact': 'Contact — Nexus',
+};
+
+/** Frames decoded before the hero is revealed. The rest stream in behind it. */
+const HERO_BOOTSTRAP_FRAMES = 8;
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -19,7 +32,10 @@ export default function App() {
   const totalFrames = FRAMES.length;
   const progressPercent = Math.min(100, Math.round((loadedCount / totalFrames) * 100));
 
-  // Listen to browser popstate to make path-based routing robust
+  const { scrollYProgress } = useScroll();
+  const scrollProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 26, restDelta: 0.002 });
+
+  // Listen to browser popstate so back/forward navigation stays correct
   useEffect(() => {
     const handlePopState = () => {
       setCurrentPath(window.location.pathname);
@@ -28,79 +44,88 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const handleNavigate = (path: string) => {
+  // Keep the document title in sync with the active route
+  useEffect(() => {
+    document.title = ROUTE_TITLES[currentPath] ?? ROUTE_TITLES['/'];
+  }, [currentPath]);
+
+  const handleNavigate = useCallback((path: string) => {
+    if (path === window.location.pathname) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     window.history.pushState(null, '', path);
     setCurrentPath(path);
-    // Instant scroll to top on route change to match standard multi-page feeling
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-  };
+  }, []);
 
-  // Preloader of frames (Global, done only once for performance)
+  // Frame preloader: reveal the site after the first frames, keep decoding the rest.
   useEffect(() => {
     let active = true;
-    let loaded = 0;
+    let settled = 0;
     const images: HTMLImageElement[] = [];
+
+    const settle = () => {
+      if (!active) return;
+      settled += 1;
+      setLoadedCount(settled);
+      if (settled >= Math.min(HERO_BOOTSTRAP_FRAMES, totalFrames)) {
+        setIsLoaded(true);
+      }
+    };
 
     FRAMES.forEach((src, idx) => {
       const img = new Image();
+      img.decoding = 'async';
       img.src = src;
-      img.onload = () => {
-        if (!active) return;
-        loaded++;
-        setLoadedCount(loaded);
-        if (loaded === totalFrames) {
-          setIsLoaded(true);
-        }
-      };
+      img.onload = settle;
       img.onerror = () => {
-        if (!active) return;
-        console.error(`Failed to load frame: ${src}`);
-        loaded++;
-        setLoadedCount(loaded);
-        if (loaded === totalFrames) {
-          setIsLoaded(true);
-        }
+        console.warn(`[nexus] frame unavailable: ${src}`);
+        settle();
       };
       images[idx] = img;
     });
 
     imagesRef.current = images;
 
+    // Never trap a visitor behind a stalled network request.
+    const escape = window.setTimeout(() => {
+      if (active) setIsLoaded(true);
+    }, 3000);
+
     return () => {
       active = false;
+      window.clearTimeout(escape);
     };
   }, [totalFrames]);
 
-  // Shared frame drawer utility
-  const drawFrame = (canvas: HTMLCanvasElement | null, frameIndex: number) => {
+  // Stable frame painter shared with the hero. Frames are blended on screen so
+  // the circuit artwork sits over the financial network without a black plate.
+  const drawFrame = useCallback((canvas: HTMLCanvasElement | null, frameIndex: number) => {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const img = imagesRef.current[frameIndex];
-    if (!img || !img.complete) return;
-
-    // Clear with solid black matching user's specification
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!img || !img.complete || !img.naturalWidth || !img.naturalHeight) return;
 
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
 
-    // Contain formula fit inside current viewport
-    const ratio = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight);
-    const x = (canvasWidth - imgWidth * ratio) / 2;
-    const y = (canvasHeight - imgHeight * ratio) / 2;
-    const width = imgWidth * ratio;
-    const height = imgHeight * ratio;
+    // Cover-fit so the particle field fills any viewport without letterboxing.
+    const ratio = Math.max(canvasWidth / img.naturalWidth, canvasHeight / img.naturalHeight);
+    const width = img.naturalWidth * ratio;
+    const height = img.naturalHeight * ratio;
+    const x = (canvasWidth - width) / 2;
+    const y = (canvasHeight - height) / 2;
 
+    ctx.globalCompositeOperation = 'screen';
     ctx.drawImage(img, x, y, width, height);
-  };
+    ctx.globalCompositeOperation = 'source-over';
+  }, []);
 
-  // Router switch rendering with perfect exit/entrance transitions
   const renderPage = () => {
     switch (currentPath) {
       case '/':
@@ -113,13 +138,14 @@ export default function App() {
           />
         );
       case '/about':
-        return <About />;
+        return <About onNavigate={handleNavigate} />;
       case '/team':
         return <Team />;
+      case '/arcade':
+        return <Arcade />;
       case '/contact':
         return <Contact />;
       default:
-        // Graceful fallback to Home if path is unrecognized
         return (
           <Home
             isLoaded={isLoaded}
@@ -132,78 +158,86 @@ export default function App() {
   };
 
   return (
-    <div className="relative w-full bg-black min-h-screen text-white flex flex-col font-sans selection:bg-cyan-500/30 selection:text-white">
-      
-      {/* 1. Global Holographic Preloader */}
+    <div className="relative min-h-screen w-full bg-[#121316] text-[#d9d9d9] flex flex-col selection:bg-[#5af05a]/25 selection:text-white">
+      {/* Shared financial network field, mounted once for the whole app */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#121316]">
+        <FinancialNetwork className="absolute inset-0 h-full w-full opacity-70" />
+        <div className="absolute inset-0 grid-veil opacity-50" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#121316] via-[#121316]/70 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#121316] to-transparent" />
+      </div>
+
+      {/* Scroll progress */}
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: scrollProgress }}
+        className="fixed inset-x-0 top-0 z-50 h-[2px] origin-left bg-gradient-to-r from-[#5af05a] via-[#8dffb0] to-[#3bd7c4]"
+      />
+
+      {/* 1. Preloader — non-blocking after the first hero frames */}
       <AnimatePresence>
         {!isLoaded && (
           <motion.div
-            key="global-loader"
+            key="nexus-loader"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            role="status"
+            aria-live="polite"
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#121316] px-6"
           >
-            <div className="relative flex flex-col items-center max-w-xs w-full px-6">
-              
-              {/* Futuristic spinner rings */}
-              <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-                  className="absolute inset-0 rounded-full border-t border-r border-neutral-800 border-t-cyan-500 border-r-cyan-400"
-                />
-                <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-                  className="absolute inset-2 rounded-full border-b border-l border-neutral-900 border-b-cyan-600/50 border-l-cyan-500/50"
-                />
-                <span className="text-lg font-mono text-cyan-400 font-semibold tracking-wider">
-                  {progressPercent}%
+            <div className="w-full max-w-xs">
+              <div className="mb-8 flex items-center gap-3">
+                <span className="brand-mark" aria-hidden="true">
+                  <img src="/brand/nexus-logo.jpeg" alt="" />
                 </span>
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#f8f1ea]">Nexus</p>
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#6f716c]">Core sync</p>
+                </div>
               </div>
 
-              {/* Progress Bar */}
-              <div className="w-full h-[1px] bg-neutral-900 rounded-full overflow-hidden mb-4 relative">
-                <motion.div
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-cyan-300"
-                  style={{ width: `${progressPercent}%` }}
-                  transition={{ ease: 'easeOut', duration: 0.1 }}
+              <div className="mb-3 flex items-end justify-between">
+                <span className="text-[10px] uppercase tracking-[0.24em] text-[#a4a6a0]">
+                  Loading visual core
+                </span>
+                <span className="font-mono text-xs text-[#5af05a]">{progressPercent}%</span>
+              </div>
+
+              <div className="h-[2px] w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#5af05a] to-[#8dffb0] transition-[width] duration-200"
+                  style={{ width: `${Math.max(6, progressPercent)}%` }}
                 />
               </div>
 
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <span className="text-[10px] text-neutral-500 uppercase tracking-[0.25em] font-medium">
-                  Loading Nexus Core Frames
-                </span>
-                <span className="text-[9px] text-neutral-600 font-mono">
-                  {loadedCount} of {totalFrames} sequences synchronized
-                </span>
-              </div>
+              <p className="mt-4 font-mono text-[10px] text-[#6f716c]">
+                {loadedCount} / {totalFrames} sequences decoded
+              </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 2. Top Navigation Bar */}
+      {/* 2. Navigation */}
       <Navbar currentPath={currentPath} onNavigate={handleNavigate} />
 
-      {/* 3. Main Page Content Section */}
-      <main className="flex-grow">
+      {/* 3. Page content */}
+      <main id="main" className="flex-grow">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPath}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.32, ease: 'easeInOut' }}
           >
             {renderPage()}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* 4. Common footer section */}
+      {/* 4. Footer */}
       <Footer onNavigate={handleNavigate} />
     </div>
   );

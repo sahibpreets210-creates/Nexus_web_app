@@ -2,81 +2,110 @@ interface FooterProps {
   onNavigate: (path: string) => void;
 }
 
-export default function Footer({ onNavigate }: FooterProps) {
-  const links = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Team', path: '/team' },
-    { name: 'Contact us', path: '/contact' },
-  ];
+const LINKS = [
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about' },
+  { name: 'Team', path: '/team' },
+  { name: 'Arcade', path: '/arcade' },
+  { name: 'Contact', path: '/contact' },
+];
 
-  const handleLinkClick = (e: React.MouseEvent, path: string) => {
-    e.preventDefault();
+const SOCIALS = [
+  { name: 'Instagram', url: 'https://www.instagram.com/nexusaisv1/', handle: '@nexusaisv1' },
+  { name: 'Discord', url: 'https://discord.gg/nxnmD7dXg', handle: 'nexus-syndicate' },
+];
+
+export default function Footer({ onNavigate }: FooterProps) {
+  const handleLinkClick = (event: React.MouseEvent, path: string) => {
+    event.preventDefault();
     onNavigate(path);
   };
 
   return (
-    <footer className="w-full bg-black border-t border-neutral-900 px-6 py-12 md:py-20 relative overflow-hidden">
-      {/* Decorative radial gradient glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+    <footer className="relative w-full border-t border-white/10 bg-[#0e0f11]/80 px-0 py-14 md:py-16">
+      <div className="container-nexus">
+        <div className="grid gap-10 md:grid-cols-12">
+          {/* Brand */}
+          <div className="md:col-span-5">
+            <a
+              href="/"
+              onClick={(event) => handleLinkClick(event, '/')}
+              className="inline-flex items-center gap-3"
+              aria-label="Nexus home"
+            >
+              <span className="brand-mark">
+                <img src="/brand/nexus-logo.jpeg" alt="" />
+              </span>
+              <span className="text-sm font-semibold uppercase tracking-[0.3em] text-[#f8f1ea]">
+                Nexus
+              </span>
+            </a>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#a4a6a0]">
+              Empowering the next generation of technologists, developers and creatives.
+              Linking intelligence, forming connections.
+            </p>
+            <p className="mt-4 max-w-sm text-[11px] uppercase tracking-[0.18em] text-[#6f716c]">
+              Amity International School, Vasundhara Sector-1
+            </p>
+          </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-10 relative z-10">
-        {/* Left Side: Brand and short description */}
-        <div className="flex flex-col gap-4">
-          <a
-            href="/"
-            onClick={(e) => handleLinkClick(e, '/')}
-            className="flex items-center gap-3 group focus:outline-none"
-          >
-            <div className="relative w-7 h-7 flex items-center justify-center">
-              <svg className="absolute inset-0 w-full h-full text-cyan-500/80 group-hover:text-cyan-400 transition-colors duration-300" viewBox="0 0 100 100">
-                <polygon
-                  points="50,5 95,25 95,75 50,95 5,75 5,25"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="6"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <svg className="w-4.5 h-4.5 text-white group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z" />
-              </svg>
-            </div>
-            <span className="text-xs font-bold tracking-[0.3em] text-white font-sans uppercase group-hover:text-cyan-400 transition-colors duration-300">
-              Nexus
-            </span>
-          </a>
-          <p className="text-neutral-500 text-xs tracking-wide max-w-sm font-sans mt-1">
-            Empowering the next generation of technologists, developers, and creatives. Linking intelligence, forming connections.
-          </p>
-        </div>
-
-        {/* Middle/Right Side: Navigation Links & Cookie Notice */}
-        <div className="flex flex-col md:items-end gap-6">
-          <nav className="flex flex-wrap gap-x-6 gap-y-2">
-            {links.map((link) => (
-              <a
-                key={link.path}
-                href={link.path}
-                onClick={(e) => handleLinkClick(e, link.path)}
-                className="text-[11px] uppercase tracking-[0.15em] text-neutral-400 hover:text-cyan-400 transition-colors duration-300 font-medium"
-              >
-                {link.name}
-              </a>
-            ))}
+          {/* Sitemap */}
+          <nav aria-label="Footer" className="md:col-span-3">
+            <h2 className="text-[10px] uppercase tracking-[0.26em] text-[#7f817b]">Navigate</h2>
+            <ul className="mt-5 flex flex-col gap-1">
+              {LINKS.map((link) => (
+                <li key={link.path}>
+                  <a
+                    href={link.path}
+                    onClick={(event) => handleLinkClick(event, link.path)}
+                    className="inline-flex min-h-[40px] items-center text-sm text-[#c8cac4] transition-colors hover:text-[#5af05a]"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </nav>
 
-          <div className="text-[10px] text-neutral-600 font-sans tracking-wider md:text-right flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 border-t border-neutral-900 md:border-none pt-4 md:pt-0">
-            <span>© 2026 Nexus Club. All rights reserved.</span>
-            <div className="flex gap-4">
-              <span className="hover:text-neutral-400 transition-colors duration-300 cursor-pointer">
-                Privacy Notice
-              </span>
-              <span className="hover:text-neutral-400 transition-colors duration-300 cursor-pointer">
-                Cookie Settings
-              </span>
-            </div>
+          {/* Gateways */}
+          <div className="md:col-span-4">
+            <h2 className="text-[10px] uppercase tracking-[0.26em] text-[#7f817b]">Gateways</h2>
+            <ul className="mt-5 flex flex-col gap-2">
+              {SOCIALS.map((social) => (
+                <li key={social.name}>
+                  <a
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex min-h-[44px] items-center justify-between gap-4 rounded-xl border border-white/10 px-4 transition-colors hover:border-[#5af05a]/40 hover:bg-[#5af05a]/[0.06]"
+                  >
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-[#c8cac4] group-hover:text-[#f8f1ea]">
+                      {social.name}
+                    </span>
+                    <span className="text-xs text-[#5af05a]">{social.handle}</span>
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a
+                  href="mailto:nexusaisv1@gmail.com"
+                  className="group flex min-h-[44px] items-center justify-between gap-4 rounded-xl border border-white/10 px-4 transition-colors hover:border-[#5af05a]/40 hover:bg-[#5af05a]/[0.06]"
+                >
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-[#c8cac4] group-hover:text-[#f8f1ea]">
+                    Email
+                  </span>
+                  <span className="text-xs text-[#5af05a]">nexusaisv1@gmail.com</span>
+                </a>
+              </li>
+            </ul>
           </div>
+        </div>
+
+        <div className="hairline my-10" />
+
+        <div className="flex flex-col gap-3 text-[10px] uppercase tracking-[0.18em] text-[#6f716c] sm:flex-row sm:items-center sm:justify-between">
+          <span>© 2026 Nexus Club. All rights reserved.</span>
+          <span className="font-mono tracking-[0.2em]">Potentia · Communitas · Educatus</span>
         </div>
       </div>
     </footer>
