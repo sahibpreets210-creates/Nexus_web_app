@@ -1,57 +1,7 @@
 import { useState } from 'react';
 import Reveal from '../components/Reveal';
-
-interface TeamMember {
-  name: string;
-  role: string;
-  avatarLetter: string;
-  imageUrl?: string;
-  imagePosition?: string;
-}
-
-const MEMBERS: TeamMember[] = [
-  {
-    name: 'Vinayak Shukla',
-    role: 'President',
-    avatarLetter: 'V',
-  },
-  {
-    name: 'Anoushka Arya',
-    role: 'Co-President',
-    avatarLetter: 'A',
-    imageUrl: '/team/anoushka.jpeg',
-  },
-  {
-    name: 'Shatakshi Agarwal',
-    role: 'Co-President',
-    avatarLetter: 'S',
-    imageUrl: '/team/shatakshi.jpeg',
-  },
-  {
-    name: 'Aditi Thakur',
-    role: 'Secretary',
-    avatarLetter: 'A',
-    imageUrl: '/team/aditi.jpeg',
-  },
-  {
-    name: 'Sahibpreet Singh',
-    role: 'Core Member',
-    avatarLetter: 'S',
-    imageUrl: '/team/sahibpreet-singh.jpeg',
-  },
-  {
-    name: 'Aarav Lal',
-    role: 'Core Member',
-    avatarLetter: 'A',
-    imageUrl: '/team/arav.jpeg',
-  },
-  {
-    name: 'Anav Halder',
-    role: 'Core Member',
-    avatarLetter: 'A',
-    imageUrl: '/team/anav.jpeg',
-  },
-];
+import { MEMBERS } from '../data/team';
+import type { TeamMember } from '../data/team';
 
 function TeamCard({ member, index }: { member: TeamMember; index: number }) {
   const [imageFailed, setImageFailed] = useState(false);

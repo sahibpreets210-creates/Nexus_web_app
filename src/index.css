@@ -324,6 +324,43 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================
+   SCROLL NARRATIVE
+   ============================================================ */
+.scene-index {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.scene-index-rule {
+  width: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(90, 240, 90, 0.65), rgba(90, 240, 90, 0));
+}
+
+/* Slow technical orbit for the arcade portal rings. */
+.nexus-portal-ring {
+  animation: nexus-orbit 34s linear infinite;
+  will-change: transform;
+}
+
+.nexus-portal-ring--reverse {
+  animation-duration: 23s;
+  animation-direction: reverse;
+}
+
+@keyframes nexus-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
    MOTION PREFERENCES
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -341,6 +378,11 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .btn:hover {
+    transform: none;
+  }
+
+  .nexus-portal-ring {
+    animation: none;
     transform: none;
   }
 }
