@@ -1,25 +1,43 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { FRAMES } from './frames';
+import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, motion, useSpring } from 'motion/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FinancialNetwork from './components/FinancialNetwork';
+import NexusField from './components/NexusField';
+import { director } from './animation/director';
 
 // Pages
 import Home from './pages/Home';
 import About from './pages/About';
 import Team from './pages/Team';
 import Contact from './pages/Contact';
+import Arcade from './pages/Arcade';
+
+const ROUTE_TITLES: Record<string, string> = {
+  '/': 'Nexus — Technology & Finance Club',
+  '/about': 'About — Nexus',
+  '/team': 'Team — Nexus',
+  '/arcade': 'Nexus Arcade — Market Dash',
+  '/contact': 'Contact — Nexus',
+};
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const isHome = currentPath === '/';
 
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const totalFrames = FRAMES.length;
-  const progressPercent = Math.min(100, Math.round((loadedCount / totalFrames) * 100));
+  // One progress value for the whole document, fed by the shared director.
+  const scrollProgress = useSpring(director.pageProgress, {
+    stiffness: 120,
+    damping: 26,
+    restDelta: 0.002,
+  });
 
-  // Listen to browser popstate to make path-based routing robust
+  // Keep the single scroll director running for the app-wide progress bar even
+  // when the homepage scenes are not mounted. It still pauses when the tab is
+  // hidden.
+  useEffect(() => director.subscribe(() => undefined), []);
+
+  // Listen to browser popstate so back/forward navigation stays correct
   useEffect(() => {
     const handlePopState = () => {
       setCurrentPath(window.location.pathname);
@@ -28,182 +46,79 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const handleNavigate = (path: string) => {
+  // Keep the document title in sync with the active route
+  useEffect(() => {
+    document.title = ROUTE_TITLES[currentPath] ?? ROUTE_TITLES['/'];
+  }, [currentPath]);
+
+  const handleNavigate = useCallback((path: string) => {
+    if (path === window.location.pathname) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     window.history.pushState(null, '', path);
     setCurrentPath(path);
-    // Instant scroll to top on route change to match standard multi-page feeling
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-  };
+  }, []);
 
-  // Preloader of frames (Global, done only once for performance)
-  useEffect(() => {
-    let active = true;
-    let loaded = 0;
-    const images: HTMLImageElement[] = [];
-
-    FRAMES.forEach((src, idx) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        if (!active) return;
-        loaded++;
-        setLoadedCount(loaded);
-        if (loaded === totalFrames) {
-          setIsLoaded(true);
-        }
-      };
-      img.onerror = () => {
-        if (!active) return;
-        console.error(`Failed to load frame: ${src}`);
-        loaded++;
-        setLoadedCount(loaded);
-        if (loaded === totalFrames) {
-          setIsLoaded(true);
-        }
-      };
-      images[idx] = img;
-    });
-
-    imagesRef.current = images;
-
-    return () => {
-      active = false;
-    };
-  }, [totalFrames]);
-
-  // Shared frame drawer utility
-  const drawFrame = (canvas: HTMLCanvasElement | null, frameIndex: number) => {
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const img = imagesRef.current[frameIndex];
-    if (!img || !img.complete) return;
-
-    // Clear with solid black matching user's specification
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
-
-    // Contain formula fit inside current viewport
-    const ratio = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight);
-    const x = (canvasWidth - imgWidth * ratio) / 2;
-    const y = (canvasHeight - imgHeight * ratio) / 2;
-    const width = imgWidth * ratio;
-    const height = imgHeight * ratio;
-
-    ctx.drawImage(img, x, y, width, height);
-  };
-
-  // Router switch rendering with perfect exit/entrance transitions
   const renderPage = () => {
     switch (currentPath) {
       case '/':
-        return (
-          <Home
-            isLoaded={isLoaded}
-            totalFrames={totalFrames}
-            drawFrame={drawFrame}
-            onNavigate={handleNavigate}
-          />
-        );
+        return <Home onNavigate={handleNavigate} />;
       case '/about':
-        return <About />;
+        return <About onNavigate={handleNavigate} />;
       case '/team':
         return <Team />;
+      case '/arcade':
+        return <Arcade />;
       case '/contact':
         return <Contact />;
       default:
-        // Graceful fallback to Home if path is unrecognized
-        return (
-          <Home
-            isLoaded={isLoaded}
-            totalFrames={totalFrames}
-            drawFrame={drawFrame}
-            onNavigate={handleNavigate}
-          />
-        );
+        return <Home onNavigate={handleNavigate} />;
     }
   };
 
   return (
-    <div className="relative w-full bg-black min-h-screen text-white flex flex-col font-sans selection:bg-cyan-500/30 selection:text-white">
-      
-      {/* 1. Global Holographic Preloader */}
-      <AnimatePresence>
-        {!isLoaded && (
-          <motion.div
-            key="global-loader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
-          >
-            <div className="relative flex flex-col items-center max-w-xs w-full px-6">
-              
-              {/* Futuristic spinner rings */}
-              <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-                  className="absolute inset-0 rounded-full border-t border-r border-neutral-800 border-t-cyan-500 border-r-cyan-400"
-                />
-                <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-                  className="absolute inset-2 rounded-full border-b border-l border-neutral-900 border-b-cyan-600/50 border-l-cyan-500/50"
-                />
-                <span className="text-lg font-mono text-cyan-400 font-semibold tracking-wider">
-                  {progressPercent}%
-                </span>
-              </div>
+    <div className="relative min-h-screen w-full text-[#d9d9d9] flex flex-col selection:bg-[#5af05a]/25 selection:text-white">
+      {/* Homepage: the shared six-scene network field. Other routes keep the
+          quieter ambient financial network. */}
+      {isHome ? (
+        <NexusField />
+      ) : (
+        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#121316]">
+          <FinancialNetwork className="absolute inset-0 h-full w-full opacity-70" />
+          <div className="absolute inset-0 grid-veil opacity-50" />
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#121316] via-[#121316]/70 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#121316] to-transparent" />
+        </div>
+      )}
 
-              {/* Progress Bar */}
-              <div className="w-full h-[1px] bg-neutral-900 rounded-full overflow-hidden mb-4 relative">
-                <motion.div
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-cyan-300"
-                  style={{ width: `${progressPercent}%` }}
-                  transition={{ ease: 'easeOut', duration: 0.1 }}
-                />
-              </div>
+      {/* Scroll progress */}
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: scrollProgress }}
+        className="fixed inset-x-0 top-0 z-50 h-[2px] origin-left bg-gradient-to-r from-[#5af05a] via-[#8dffb0] to-[#3bd7c4]"
+      />
 
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <span className="text-[10px] text-neutral-500 uppercase tracking-[0.25em] font-medium">
-                  Loading Nexus Core Frames
-                </span>
-                <span className="text-[9px] text-neutral-600 font-mono">
-                  {loadedCount} of {totalFrames} sequences synchronized
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 2. Top Navigation Bar */}
+      {/* 1. Navigation */}
       <Navbar currentPath={currentPath} onNavigate={handleNavigate} />
 
-      {/* 3. Main Page Content Section */}
-      <main className="flex-grow">
+      {/* 2. Page content */}
+      <main id="main" className="flex-grow">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPath}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.32, ease: 'easeInOut' }}
           >
             {renderPage()}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* 4. Common footer section */}
+      {/* 3. Footer */}
       <Footer onNavigate={handleNavigate} />
     </div>
   );

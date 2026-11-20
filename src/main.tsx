@@ -12,3 +12,13 @@ if (container) {
     </React.StrictMode>
   );
 }
+
+// Offline shell for the Nexus Arcade. Registered only in production builds so
+// `vite dev` is never served stale assets.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((error) => {
+      console.warn('[nexus] service worker registration failed', error);
+    });
+  });
+}
