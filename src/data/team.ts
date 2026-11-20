@@ -9,19 +9,14 @@ export interface TeamMember {
 /** The Nexus core. Photographs live in /public/team. */
 export const MEMBERS: TeamMember[] = [
   {
-    name: 'Vinayak Shukla',
-    role: 'President',
-    avatarLetter: 'V',
-  },
-  {
     name: 'Anoushka Arya',
-    role: 'Co-President',
+    role: 'President',
     avatarLetter: 'A',
     imageUrl: '/team/anoushka.jpeg',
   },
   {
     name: 'Shatakshi Agarwal',
-    role: 'Co-President',
+    role: 'President',
     avatarLetter: 'S',
     imageUrl: '/team/shatakshi.jpeg',
   },
