@@ -4,7 +4,7 @@ import Reveal from '../components/Reveal';
 
 const SOCIALS = [
   { name: 'Instagram', url: 'https://www.instagram.com/nexusaisv1/', handle: '@nexusaisv1' },
-  { name: 'Discord', url: 'https://discord.gg/nxnmD7dXg', handle: 'nexus-syndicate' },
+  { name: 'Discord', url: 'https://discord.gg/WDCSx3Bdf', handle: 'nexus' },
 ];
 
 const EMAIL = 'nexusaisv1@gmail.com';

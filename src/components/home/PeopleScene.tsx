@@ -11,7 +11,7 @@ interface PeopleSceneProps {
   onNavigate: (path: string) => void;
 }
 
-/** Branches that connect the network trunk to the syndicate columns. */
+/** Branches that connect the network trunk to the core columns. */
 const BRANCHES = [
   'M600 4 C 600 96, 200 80, 200 210',
   'M600 4 C 600 96, 600 100, 600 210',
@@ -93,7 +93,7 @@ export default function PeopleScene({ reduced, onNavigate }: PeopleSceneProps) {
           </h2>
           <p className="lead mx-auto mt-5 max-w-xl text-sm sm:text-base">
             The analysts, builders and designers steering Nexus — the network branches into
-            the syndicate that keeps it moving.
+            the core that keeps it moving.
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export default function PeopleScene({ reduced, onNavigate }: PeopleSceneProps) {
         <Reveal>
           <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-5 sm:flex-row">
             <p className="text-center text-xs leading-relaxed text-[#a4a6a0] sm:text-left">
-              Seven core members, one syndicate — reach out for collaborations, mentorship
+              Seven core members, one — reach out for collaborations, mentorship
               or club announcements.
             </p>
             <button

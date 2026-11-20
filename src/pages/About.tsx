@@ -152,7 +152,7 @@ export default function About({ onNavigate }: AboutProps) {
               Want to know more?
             </h2>
             <p className="lead relative mx-auto mt-4 max-w-xl text-sm">
-              Get in touch with the core syndicate or explore our full team. Let&apos;s form
+              Get in touch with the core or explore our full team. Let&apos;s form
               connections and link intelligence.
             </p>
             <div className="relative mx-auto mt-8 flex w-full max-w-sm flex-col gap-3 sm:flex-row sm:justify-center">

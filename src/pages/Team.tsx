@@ -40,7 +40,7 @@ function TeamCard({ member, index }: { member: TeamMember; index: number }) {
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#15171b] via-[#15171b]/25 to-transparent" />
           <span className="absolute left-4 top-4 rounded-full border border-[#5af05a]/25 bg-[#0d0f11]/70 px-3 py-1 text-[9px] uppercase tracking-[0.2em] text-[#8fe6a2] backdrop-blur">
-            Core Syndicate
+            Core
           </span>
         </div>
 
@@ -69,7 +69,7 @@ export default function Team() {
     <div className="page-top w-full pb-24">
       <div className="container-nexus">
         <header className="mx-auto max-w-3xl text-center">
-          <p className="eyebrow justify-center">The Core Syndicate</p>
+          <p className="eyebrow justify-center">The Core</p>
           <h1 className="display mt-5 text-[clamp(2.2rem,6vw,3.75rem)]">Our Team</h1>
           <div className="mx-auto mt-6 h-[2px] w-16 rounded-full bg-gradient-to-r from-[#5af05a] to-[#3bd7c4]" />
           <p className="lead mx-auto mt-6 max-w-xl text-sm sm:text-base">
@@ -88,7 +88,7 @@ export default function Team() {
           <div className="panel mt-14 flex flex-col items-center gap-4 px-6 py-8 text-center sm:px-10">
             <div className="panel-sheen" />
             <h2 className="relative text-lg font-semibold uppercase tracking-[0.12em] text-[#f8f1ea]">
-              Want to build with the syndicate?
+              Want to build with the core?
             </h2>
             <p className="relative max-w-lg text-sm leading-relaxed text-[#a4a6a0]">
               Reach out to the core team for collaborations, mentorship or club

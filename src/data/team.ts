@@ -6,7 +6,7 @@ export interface TeamMember {
   imagePosition?: string;
 }
 
-/** The Nexus core syndicate. Photographs live in /public/team. */
+/** The Nexus core. Photographs live in /public/team. */
 export const MEMBERS: TeamMember[] = [
   {
     name: 'Vinayak Shukla',

@@ -13,7 +13,7 @@ interface IntelligenceSceneProps {
  * modelled, estimated or invented.
  */
 const STATS = [
-  { label: 'Core members', value: 7, note: 'The full syndicate listed on the team page.' },
+  { label: 'Core members', value: 7, note: 'The full core listed on the team page.' },
   { label: 'Strategic pillars', value: 3, note: 'Potentia, Communitas, Educatus.' },
   { label: 'Live routes', value: 5, note: 'Home, about, team, arcade and contact.' },
   { label: 'Arcade titles', value: 1, note: 'Market Dash, running in the browser.' },
@@ -244,7 +244,7 @@ export default function IntelligenceScene({ reduced }: IntelligenceSceneProps) {
           </h2>
           <p className="lead mt-5 max-w-xl text-sm sm:text-base">
             The network stops drifting and starts measuring. Every region of the graph maps
-            to a discipline the syndicate actually practises — engineering, markets and the
+            to a discipline the core actually practises — engineering, markets and the
             shared growth that connects them.
           </p>
         </div>

@@ -40,7 +40,7 @@ function OriginCopy({ reduced, onNavigate }: CopyProps) {
           transition={{ duration: 0.6 }}
           className="eyebrow mt-6"
         >
-          Visionary Syndicate
+          Visionary Core
         </motion.p>
 
         <motion.h1
@@ -126,7 +126,7 @@ function ConnectionCopy() {
         </div>
 
         <p className="lead text-sm sm:text-base">
-          An elite student tech-finance syndicate at Amity International School,
+          An elite student tech-finance group at Amity International School,
           Vasundhara Sector-1. We push the frontiers of what is possible, bringing together
           analytical developers, visual designers, and finance visionaries to collaborate,
           learn, and build high-performance solutions for modern challenges. Our alliance
